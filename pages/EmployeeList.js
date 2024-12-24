@@ -34,7 +34,12 @@ export class EmployeeList extends LitElement {
   }
 
   deleteEmployee(employee) {
-    store.dispatch({type: 'DELETE_EMPLOYEE', payload: employee});
+    store.dispatch({ type: 'DELETE_EMPLOYEE', payload: { id: 1 } });
+console.log(employee)
+console.log(store.getState().employees);
+this.requestUpdate();
+
+
     alert('Employee deleted successfully!');
   }
 
@@ -91,7 +96,6 @@ export class EmployeeList extends LitElement {
     const employee = event.detail;
     if (this.isEditMode) {
       store.dispatch({type: 'EDIT_EMPLOYEE', payload: employee});
-      console.log('Redux state after update:', store.getState());
     } else {
       store.dispatch({
         type: 'ADD_EMPLOYEE',
@@ -389,15 +393,12 @@ export class EmployeeList extends LitElement {
 
   get filteredEmployees() {
     if (!this.searchQuery) {
-      return this.employees; // Arama kutusu boşsa, tüm kayıtlar
+      return this.employees; 
     }
     return this.employees.filter((emp) => {
-      // Arama koşulunu istediğiniz gibi genişletebilirsiniz:
       const fullName = (emp.firstName + ' ' + emp.lastName).toLowerCase();
       const phone = emp.phoneNumber?.toLowerCase() || '';
       const email = emp.email?.toLowerCase() || '';
-  
-      // Basit bir örnek: Arama metni firstName, lastName, phone veya email içinde geçiyorsa
       return (
         fullName.includes(this.searchQuery) ||
         phone.includes(this.searchQuery) ||
@@ -518,7 +519,6 @@ export class EmployeeList extends LitElement {
   }
 
   render() {
-    console.log(this.employees);
     return html`
       <div class="container">
         <div class="headerContainer">

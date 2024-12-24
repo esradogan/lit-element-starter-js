@@ -23,11 +23,12 @@
     "analyze:watch": "cem analyze --litelement --globs \"**/*.js\" --exclude docs --watch",
     "serve": "wds --watch",
     "serve:prod": "MODE=prod npm run serve",
-    "test": "npm run test:dev && npm run test:prod",
+    "test": "wtr",
     "test:dev": "wtr ",
     "test:watch": "wtr --watch",
     "test:prod": "MODE=prod wtr",
     "test:prod:watch": "MODE=prod wtr --watch",
+    "coverage": "wtr --coverage",
     "checksize": "rollup -c ; cat my-element.bundled.js | gzip -9 | wc -c ; rm my-element.bundled.js"
   },
   "keywords": [
@@ -58,14 +59,36 @@
     "@web/dev-server": "^0.1.38",
     "@web/dev-server-legacy": "^1.0.0",
     "@web/test-runner": "^0.15.3",
+    "@web/test-runner-coverage-v8": "^0.8.0",
     "@web/test-runner-playwright": "^0.9.0",
     "@webcomponents/webcomponentsjs": "^2.8.0",
+    "chai": "^5.1.2",
     "eslint": "^8.15.0",
     "lit-analyzer": "^1.2.1",
+    "mocha": "^11.0.1",
+    "nyc": "^17.1.0",
     "prettier": "^2.6.2",
     "rimraf": "^3.0.2",
     "rollup": "^4.18.0",
     "rollup-plugin-summary": "^2.0.1"
+  },
+  "nyc": {
+    "all": true,
+    "include": [
+      "pages/**/*.js",
+      "components/**/*.js"
+    ],
+    "exclude": [
+      "test/**/*.js",
+      "node_modules"
+    ],
+    "reporter": [
+      "text",
+      "html"
+    ],
+    "extension": [
+      ".js"
+    ]
   },
   "customElements": "custom-elements.json"
 }
