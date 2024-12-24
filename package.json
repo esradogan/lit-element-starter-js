@@ -24,7 +24,7 @@
     "serve": "wds --watch",
     "serve:prod": "MODE=prod npm run serve",
     "test": "npm run test:dev && npm run test:prod",
-    "test:dev": "wtr",
+    "test:dev": "wtr ",
     "test:watch": "wtr --watch",
     "test:prod": "MODE=prod wtr",
     "test:prod:watch": "MODE=prod wtr --watch",
@@ -39,7 +39,12 @@
   "author": "Google LLC",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "lit": "^3.2.0"
+    "@reduxjs/toolkit": "^2.5.0",
+    "@vaadin/router": "^2.0.0",
+    "junit": "^1.4.9",
+    "lit": "^3.2.0",
+    "redux": "^4.2.1",
+    "redux-persist": "^6.0.0"
   },
   "devDependencies": {
     "@11ty/eleventy": "^1.0.1",
@@ -50,9 +55,9 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^5.0.7",
     "@rollup/plugin-terser": "^0.4.4",
-    "@web/dev-server": "^0.1.31",
+    "@web/dev-server": "^0.1.38",
     "@web/dev-server-legacy": "^1.0.0",
-    "@web/test-runner": "^0.15.0",
+    "@web/test-runner": "^0.15.3",
     "@web/test-runner-playwright": "^0.9.0",
     "@webcomponents/webcomponentsjs": "^2.8.0",
     "eslint": "^8.15.0",
