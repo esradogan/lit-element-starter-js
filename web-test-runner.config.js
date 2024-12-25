@@ -3,7 +3,7 @@ import { playwrightLauncher } from '@web/test-runner-playwright';
 import { coveragePlugin } from '@web/test-runner-coverage';
 
 export default {
-  files: ['./test/**/*_test.js'], // Test dosyalarınızın yolu
+  files: ['./test/**/*_test.js'],
   nodeResolve: true,
   browsers: [
     playwrightLauncher({ product: 'chromium' }),
@@ -12,15 +12,15 @@ export default {
   ],
   plugins: [
     coveragePlugin({
-      include: ['components/**/*.js', 'pages/**/*.js'], // Kapsam dahil edilecek dosyalar
-      exclude: ['**/test/**/*.*', 'node_modules'], // Hariç tutulacak dosyalar
-      reporter: ['text', 'html'], // Raporlayıcılar
-      reportDir: 'coverage', // Rapor dizini
+      include: ['components/**/*.js', 'pages/**/*.js'], 
+      exclude: ['**/test/**/*.*', 'node_modules'],
+      reporter: ['text', 'html'], 
+      reportDir: 'coverage', 
     }),
   ],
   coverageConfig: {
     report: true,
-    reporter: ['lcov', 'text-summary', 'html'], // Rapor formatları
-    reportDir: 'coverage', // Rapor dizini
+    reporter: ['lcov', 'text-summary', 'html'],
+    reportDir: 'coverage',
   },
 };

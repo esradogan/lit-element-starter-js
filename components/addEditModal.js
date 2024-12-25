@@ -185,7 +185,6 @@ class AddEditModal extends LitElement {
     }
     
     this.invalidFields = invalidFields;
-    console.log(this.invalidFields);
     return invalidFields.length === 0;
   }
 
