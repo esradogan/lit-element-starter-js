@@ -11,6 +11,15 @@ const messages = {
     email: 'E-mail',
     department: 'Department',
     position: 'Position',
+    edit: 'Edit',
+    delete: 'Delete',
+    createEmployee: 'Create Employee',
+    editEmployee: 'Edit Employee',
+    cancel: 'Cancel',
+    proceed: 'Proceed',
+    selectedEmpRecord:'Selected employee record',
+    willbeDeleted: 'will be deleted',
+    areYouSure: 'Are you sure?'
   },
   tr: {
     addNew: 'Yeni Ekle',
@@ -24,10 +33,20 @@ const messages = {
     email: 'E-posta',
     department: 'Departman',
     position: 'Pozisyon',
+    edit: 'Düzenle',
+    delete: 'Sil',
+    createEmployee: 'Çalışan Ekle',
+    editEmployee: 'Çalışanı Düzenle',
+    cancel: 'İptal',
+    proceed: 'İlerle',
+    selectedEmpRecord:'Seçilen çalışan',
+    willbeDeleted: 'kişisinin kaydı silinecektir',
+    areYouSure: 'Emin misiniz?'
+
   },
 };
 
-export function getMessage(key) {
+export function getMessage (key) {
   const lang = document.documentElement.lang || 'en';
   return messages[lang][key] || key;
 }

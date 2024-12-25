@@ -1,19 +1,19 @@
-import {LitElement, html, css} from 'lit';
+import { LitElement, html, css } from 'lit';
 import store from '../data-persistence/store.js';
 import '../components/pagination.js';
 import '../components/addEditModal.js';
 import '../components/deleteModal.js';
-import {getMessage} from '../localization/localization.js';
+import { getMessage } from '../localization/localization.js';
 
 export class EmployeeList extends LitElement {
   static properties = {
-    isModalOpen: {type: Boolean},
-    isDeleteModalOpen: {type: Boolean},
-    isEditMode: {type: Boolean},
-    selectedEmployee: {type: Object},
-    formData: {type: Object},
-    employees: {type: Array},
-    searchQuery: {type: String},
+    isModalOpen: { type: Boolean },
+    isDeleteModalOpen: { type: Boolean },
+    isEditMode: { type: Boolean },
+    selectedEmployee: { type: Object },
+    formData: { type: Object },
+    employees: { type: Array },
+    searchQuery: { type: String },
   };
 
   constructor() {
@@ -31,19 +31,15 @@ export class EmployeeList extends LitElement {
     this.formData = this.formData || null;
     this.isDeleteModalOpen = false;
     this.searchQuery = '';
+    this.totalItems = 0;
   }
 
-  deleteEmployee(employee) {
-    store.dispatch({ type: 'DELETE_EMPLOYEE', payload: { id: 1 } });
-console.log(employee)
-console.log(store.getState().employees);
-this.requestUpdate();
-
-
+  deleteEmployee (employee) {
+    store.dispatch({ type: 'DELETE_EMPLOYEE', payload: employee });
     alert('Employee deleted successfully!');
   }
 
-  openModal(isEdit, employee = null) {
+  openModal (isEdit, employee = null) {
     this.isModalOpen = true;
     this.isEditMode = isEdit;
     this.selectedEmployee = employee || {
@@ -65,52 +61,76 @@ this.requestUpdate();
       ? this.formatDateToInput(employee.dateOfBirth)
       : '';
 
-    this.formData = {...this.selectedEmployee};
+    this.formData = { ...this.selectedEmployee };
     this.requestUpdate();
-    console.log('formData:', this.formData);
   }
 
-  formatDateToInput(date) {
+  formatDateToInput (date) {
     const [day, month, year] = date.split('.');
     return `${year}-${month}-${day}`;
   }
 
-  handleDelete(event) {
+  handleDelete (event) {
     const employee = event.detail;
     this.deleteEmployee(employee);
     this.isDeleteModalOpen = false;
   }
 
-  openDeleteModal(employee) {
+  openDeleteModal (employee) {
     this.selectedEmployee = employee;
     this.isDeleteModalOpen = true;
   }
 
-  closeModal() {
+  closeModal () {
     this.isModalOpen = false;
     this.formData = null;
   }
 
-  saveData(event) {
-    console.log('Saved Data:', event.detail);
+  saveData (event) {
     const employee = event.detail;
     if (this.isEditMode) {
-      store.dispatch({type: 'EDIT_EMPLOYEE', payload: employee});
+      store.dispatch({ type: 'EDIT_EMPLOYEE', payload: employee });
     } else {
       store.dispatch({
         type: 'ADD_EMPLOYEE',
-        payload: {...employee, id: Date.now()},
+        payload: { ...employee, id: Date.now() },
       });
     }
     this.closeModal();
   }
 
-  connectedCallback() {
+  async loadEmployees () {
+    try {
+      const response = await fetch('../data/EmployeeData.json');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      const uniqueEmployees = Object.values(
+        data.reduce((acc, employee) => {
+          acc[employee.email] = employee;
+          return acc;
+        }, {})
+      );
+      const employeesWithId = uniqueEmployees.map((employee, index) => ({
+        ...employee,
+        id: index + 1,
+      }));
+      store.dispatch({ type: 'LOAD_EMPLOYEES', payload: employeesWithId });
+      this.totalItems = employeesWithId.length;
+      this.currentPage = 1;
+      this.isDataLoaded = true;
+      this.requestUpdate();
+    } catch (error) {
+      console.error('Failed to load employees:', error);
+    }
+  }
+
+  connectedCallback () {
     super.connectedCallback();
-    this.loadEmployees(); //buna sonra bak
+    this.loadEmployees();
     const savedLang = localStorage.getItem('lang') || 'en';
     document.documentElement.lang = savedLang;
-    this.requestUpdate();
   }
 
   static styles = css`
@@ -124,8 +144,6 @@ this.requestUpdate();
     .container {
       background-color: #f0f0f0;
       min-height: 100vh;
-      /* display: flex;
-      flex-direction: column; */
       padding: 20px;
       box-sizing: border-box;
     }
@@ -171,19 +189,16 @@ this.requestUpdate();
     }
 
     .employeeContainer {
-      /* padding: 70px;
-      background-color: #f0f0f0; */
-      /* background-color: pink; */
-      /* 
-      display: flex;
-      flex-direction: row;
-      justify-content: space-evenly; */
-
       margin-top: 20px;
       background-color: #f0f0f0;
       border: 1px solid #eaeaea;
       border-radius: 8px;
       padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1; 
+      overflow: hidden; 
+      min-height: 100vh;
     }
 
     .employeeContainerIcon {
@@ -253,16 +268,11 @@ this.requestUpdate();
       text-align: left;
     }
 
-    /* .listTitles > div {
-      text-align: left;
-    } */
-
     .listRow {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+      grid-template-columns: repeat(9, 1fr);
       gap: 10px;
       background-color: #ffffff;
-      /* border: 1px solid #e0e0e0; */
       border-radius: 8px;
       padding: 15px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -279,6 +289,8 @@ this.requestUpdate();
       font-size: 15px;
       font-weight: 500;
       color: #333;
+      word-wrap: break-word; 
+  overflow-wrap: break-word;
     }
 
     .listRow button {
@@ -301,23 +313,43 @@ this.requestUpdate();
       flex-direction: column;
     }
 
+    @media (max-width: 768px) {
+    .listTitles {
+      grid-template-columns: repeat(4, 1fr); 
+    }
+   
+    .listRow {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+   
+    .listRow div {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+   
     button {
       padding: 5px 10px;
       border: none;
     }
 
-    /* td {
-      padding: 20px;
-      text-align: left;
-      border: 1px solid #ddd;
-      background-color: #ffffff;
-    } */
-
     .tableContainer {
       width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
+      overflow-x: auto;
     }
+
+    @media (max-width: 768px) {
+    .employeeContainer {
+       padding: 15px;
+    }
+
+    .tableContainer {
+       overflow-x: scroll;
+    }
+   }
 
     .tableContainer th,
     .tableContainer td {
@@ -337,6 +369,20 @@ this.requestUpdate();
       background-color: #ffffff;
       color: #333;
     }
+    
+    .tableContainer button {
+      background-color: #ff6200;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .tableContainer button:hover {
+      background-color: #e55b00;
+    }
 
     input[type='checkbox'] {
       width: 17px;
@@ -350,6 +396,7 @@ this.requestUpdate();
       width: 100%;
       background-color: #fff;
       z-index: 10;
+      flex-shrink: 0;
     }
 
     .toggleLangButton {
@@ -361,39 +408,15 @@ this.requestUpdate();
     }
   `;
 
-  async loadEmployees() {
-    try {
-      const response = await fetch('../data/EmployeeData.json');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      const uniqueEmployees = Object.values(
-        data.reduce((acc, employee) => {
-          acc[employee.email] = employee;
-          return acc;
-        }, {})
-      );
-      const employeesWithId = uniqueEmployees.map((employee, index) => ({
-        ...employee,
-        id: index + 1,
-      }));
-      store.dispatch({type: 'LOAD_EMPLOYEES', payload: employeesWithId});
-      // this.requestUpdate();
-    } catch (error) {
-      console.error('Failed to load employees:', error);
-    }
-  }
-
-  handleSearchInput(e) {
+  handleSearchInput (e) {
     this.searchQuery = e.target.value.toLowerCase();
-    this.currentPage = 1; 
+    this.currentPage = 1;
     this.requestUpdate();
   }
 
-  get filteredEmployees() {
+  get filteredEmployees () {
     if (!this.searchQuery) {
-      return this.employees; 
+      return this.employees;
     }
     return this.employees.filter((emp) => {
       const fullName = (emp.firstName + ' ' + emp.lastName).toLowerCase();
@@ -407,26 +430,26 @@ this.requestUpdate();
     });
   }
 
-  get paginatedEmployees() {
+  get paginatedEmployees () {
     const filtered = this.filteredEmployees;
     const startIdx = (this.currentPage - 1) * this.itemsPerPage;
     const endIdx = startIdx + this.itemsPerPage;
     return filtered.slice(startIdx, endIdx);
   }
 
-  handlePageChange(e) {
+  handlePageChange (e) {
     this.currentPage = e.detail;
     this.requestUpdate();
   }
 
   isListView = true;
 
-  toggleView(value) {
+  toggleView (value) {
     this.isListView = value === 'list' ? true : false;
     this.requestUpdate();
   }
 
-  toggleLanguage() {
+  toggleLanguage () {
     const currentLang = document.documentElement.lang || 'en';
     const newLang = currentLang === 'tr' ? 'en' : 'tr';
     document.documentElement.lang = newLang;
@@ -434,7 +457,7 @@ this.requestUpdate();
     this.requestUpdate();
   }
 
-  renderListView() {
+  renderListView () {
     return html` <div class="listContainer">
       <div class="listTitles">
         <strong>${getMessage('firstName')}</strong>
@@ -448,8 +471,8 @@ this.requestUpdate();
         <strong>${getMessage('actions')}</strong>
       </div>
       ${this.paginatedEmployees.map(
-        (employee) =>
-          html`
+      (employee) =>
+        html`
             <div class="listRow">
               <div>${employee.firstName}</div>
               <div>${employee.lastName}</div>
@@ -461,38 +484,38 @@ this.requestUpdate();
               <div>${employee.position}</div>
               <div>
                 <button @click="${() => this.openModal(true, employee)}">
-                  Edit
+                  ${getMessage('edit')} 
                 </button>
                 <button @click="${() => this.openDeleteModal(employee)}">
-                  Delete
+                  ${getMessage('delete')} 
                 </button>
               </div>
             </div>
           `
-      )}
+    )}
     </div>`;
   }
 
-  renderTableView() {
+  renderTableView () {
     return html`
       <table class="tableContainer">
         <thead>
-          <tr class="">
+          <tr >
             <th></th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Date of Employement</th>
-            <th>Date of Birth</th>
-            <th>Phone</th>
-            <th>Email</th>
-            <th>Department</th>
-            <th>Position</th>
-            <th>Actions</th>
+            <th>${getMessage('firstName')}</th>
+            <th>${getMessage('lastName')}</th>
+            <th>${getMessage('dateOfEmployement')}</th>
+            <th>${getMessage('dateOfBirth')}</th>
+            <th>${getMessage('phone')}</th>
+            <th>${getMessage('email')}</th>
+            <th>${getMessage('department')}</th>
+            <th>${getMessage('position')}</th>
+            <th>${getMessage('actions')}</th>
           </tr>
         </thead>
         <tbody>
           ${this.paginatedEmployees.map(
-            (employee) => html`
+      (employee) => html`
               <tr>
                 <td>
                   <input
@@ -509,16 +532,19 @@ this.requestUpdate();
                 <td>${employee.email}</td>
                 <td>${employee.department}</td>
                 <td>${employee.position}</td>
-                <td><button>Edit</button> <button>Del</button></td>
+                <td>
+                  <button @click="${() => this.openModal(true, employee)}">${getMessage('edit')}</button>
+                  <button @click="${() => this.openDeleteModal(employee)}">${getMessage('delete')}</button>
+                </td>
               </tr>
             `
-          )}
+    )}
         </tbody>
       </table>
     `;
   }
 
-  render() {
+  render () {
     return html`
       <div class="container">
         <div class="headerContainer">
@@ -549,8 +575,8 @@ this.requestUpdate();
                 <img
                   class="icon"
                   src=${document.documentElement.lang === 'tr'
-                    ? '/assets/icons/tr.png'
-                    : '/assets/icons/uk.png'}
+        ? '/assets/icons/tr.png'
+        : '/assets/icons/uk.png'}
                   alt="Language Toggle"
                 />
               </button>
@@ -604,12 +630,14 @@ this.requestUpdate();
           ></delete-modal>
 
           <div class="pagination-container">
-            <pagination-element
-              .totalItems="${this.employees.length}"
-              .itemsPerPage="${this.itemsPerPage}"
-              @page-changed="${this.handlePageChange}"
-            >
-            </pagination-element>
+          ${this.isDataLoaded
+        ? html`<pagination-element
+            .totalItems="${this.totalItems}"
+            .itemsPerPage="${this.itemsPerPage}"
+            @page-changed="${this.handlePageChange}">
+          </pagination-element>`
+        : html`<div>Loading...</div>`
+      }
           </div>
         </div>
       </div>

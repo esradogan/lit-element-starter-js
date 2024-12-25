@@ -50,6 +50,7 @@ class Pagination extends LitElement {
   }
 
   render() {
+  
     return html`
         <div class="pagination">
           <button

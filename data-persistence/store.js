@@ -5,11 +5,6 @@ const initialState = {
 };
 
 const reducer = (state = initialState, action) => {
-  // state.employees.forEach((employee) => {
-  //     console.log('Employee ID:', employee.id, 'Payload ID:', action.payload.id, action.payload);
-  //   });
-
-
   switch (action.type) {
     case 'LOAD_EMPLOYEES':
       return {

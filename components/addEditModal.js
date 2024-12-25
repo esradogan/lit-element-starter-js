@@ -1,4 +1,6 @@
 import {LitElement, html, css} from 'lit';
+import { getMessage } from '../localization/localization.js';
+
 
 class AddEditModal extends LitElement {
   static properties = {
@@ -93,8 +95,6 @@ class AddEditModal extends LitElement {
 
     .button {
       padding: 5px 10px;
-      /* background-color: #007bff; */
-      /* color: white; */
       border: 1px solid navy;
       border-radius: 4px;
       cursor: pointer;
@@ -144,9 +144,15 @@ class AddEditModal extends LitElement {
 
   handleInputChange(event, key) {
     this.formData = {...this.formData, [key]: event.target.value};
+    this.validateFields();
+    // if (this.invalidFields.includes(key)) {
+    //   this.invalidFields = this.invalidFields.filter((field) => field !== key);
+    // }
+  }
 
-    if (this.invalidFields.includes(key)) {
-      this.invalidFields = this.invalidFields.filter((field) => field !== key);
+  updated(changedProperties) {
+    if (changedProperties.has('isOpen') && this.isOpen) {
+      this.invalidFields = []; 
     }
   }
 
@@ -171,6 +177,13 @@ class AddEditModal extends LitElement {
       }
     }
 
+    if (this.formData.phoneNumber) {
+      const phonePattern = /^[0-9]{10}$/;
+      if (!phonePattern.test(this.formData.phoneNumber)) {
+        invalidFields.push('phoneNumber');
+      }
+    }
+    
     this.invalidFields = invalidFields;
     console.log(this.invalidFields);
     return invalidFields.length === 0;
@@ -216,7 +229,7 @@ class AddEditModal extends LitElement {
         <div class="modalContent">
           <button class="closeButton" @click="${this.closeModal}">x</button>
           <div class="modalHeader">
-            ${this.isEditMode ? 'Edit Employee' : 'Create Employee'}
+            ${this.isEditMode ? getMessage('editEmployee') : getMessage('createEmployee')}
           </div>
 
           <input

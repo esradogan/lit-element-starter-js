@@ -1,4 +1,5 @@
 import {LitElement, html, css} from 'lit';
+import { getMessage } from '../localization/localization.js';
 
 class DeleteModal extends LitElement {
   static properties = {
@@ -70,6 +71,7 @@ class DeleteModal extends LitElement {
       border: 1px solid navy;
       border-radius: 4px;
       background-color: #ffffff;
+      margin-right: 3px;
       cursor: pointer;
     }
 
@@ -77,7 +79,6 @@ class DeleteModal extends LitElement {
       padding: 5px 10px;
       border: navy;
       border-radius: 4px;
-      margin-right: 3px;
       background-color: #ff6200;
       cursor: pointer;
       color: white;
@@ -117,18 +118,18 @@ class DeleteModal extends LitElement {
       <div class="modal ${this.isOpen ? '' : 'hidden'}">
         <div class="modalContent">
           <button class="closeButton" @click="${this.closeModal}">x</button>
-          <div class="modalHeader">Are you sure?</div>
+          <div class="modalHeader">${getMessage('areYouSure')} </div>
 
           <p>
-            Selected employee record ${this.employee?.firstName}
-            ${this.employee?.lastName} will be deleted
+          ${getMessage('selectedEmpRecord')} ${this.employee?.firstName}
+            ${this.employee?.lastName} ${getMessage('willbeDeleted')} 
           </p>
           <div class="modalFooter">
-            <button class="button proceedButton" @click="${this.confirmDelete}">
-              Proceed
-            </button>
             <button class="cancelButton" @click="${this.closeModal}">
-              Cancel
+            ${getMessage('cancel')}
+            </button>
+            <button class="button proceedButton" @click="${this.confirmDelete}">
+            ${getMessage('proceed')}
             </button>
           </div>
         </div>
